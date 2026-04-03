@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>النتيجة النهائية</title>
+    <style>
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; 
+            color: white; text-align: center;
+            /* ضبط المسافات: 5px من الأعلى و 15px من الأسفل لضغط العناصر للأطراف */
+            padding: 5px 0 15px 0; 
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* 1. المستطيل العلوي: أنحف (Slim) وملتصق بالأعلى */
+        .top-info {
+            background: rgba(10, 25, 47, 0.85);
+            backdrop-filter: blur(15px);
+            width: 85%; 
+            max-width: 650px;
+            padding: 5px 0; /* أنحف ارتفاع ممكن */
+            border-radius: 10px;
+            border: 1.5px solid #00f2ff;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+            margin-top: 0; /* ملتصق تماماً بالحافة */
+        }
+        .top-info h2 { margin: 0; font-size: 16px; opacity: 0.8; }
+        .top-info .score { font-size: 38px; font-weight: 900; color: #00f2ff; margin: 0; line-height: 1.1; }
+
+        .middle-space { flex-grow: 1; }
+
+        /* 2. الزر: أسفل جداً وبلون "ابدأ التحدي" */
+        .bottom-action {
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 5px; /* قريب جداً من الحافة السفلية */
+        }
+        .btn-main {
+            width: 100%;
+            padding: 14px;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #00c6ff, #0072ff); 
+            color: white; border: none; cursor: pointer;
+            font-size: 19px; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
+            transition: 0.2s;
+        }
+        .btn-main:hover { transform: scale(1.03); box-shadow: 0 0 20px #00f2ff; }
+    </style>
+</head>
+<body id="resultBody">
+
+    <div class="top-info">
+        <h2 id="congratsText">تحميل النتيجة...</h2>
+        <div class="score" id="displayScore">0 / 10</div>
+    </div>
+
+    <div class="middle-space"></div>
+
+    <div class="bottom-action">
+        <button class="btn-main" onclick="location.href='quiz.html'">Try again 🔄</button>
+    </div>
+
+    <script>
+        // --- قسم التعديلات المستقبلية ---
+        // هنا يمكنك لاحقاً تغيير عدد الأسئلة الإجمالي
+        const totalQuestions = 10; 
+        
+        const score = parseInt(localStorage.getItem('finalScore')) || 0;
+        const name = localStorage.getItem('userName') || "كوثر";
+        const body = document.getElementById('resultBody');
+
+        // تغيير الصور بناءً على النتيجة
+        if (score >= 9) {
+            body.style.backgroundImage = "url('5.png')";
+        } else if (score >= 5) {
+            body.style.backgroundImage = "url('4.png')";
+        } else {
+            body.style.backgroundImage = "url('3.png')";
+        }
+
+        document.getElementById('displayScore').innerText = score + " / " + totalQuestions;
+        document.getElementById('congratsText').innerText = "تهانينا يا " + name + "!";
+    </script>
+</body>
+</html>

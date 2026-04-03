@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تحدي المعلوماتية - القائمة الرئيسية</title>
+    <style>
+        /* 1. التوسيط الكامل للصفحة */
+        body { 
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: url('1.png') no-repeat center center fixed; 
+            background-size: cover;
+            display: flex; 
+            align-items: center; /* توسيط عمودي */
+            justify-content: center; /* توسيط أفقي */
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 2. تصميم الحاوية الزجاجية */
+        .container { 
+            background: rgba(10, 25, 47, 0.8); /* خلفية داكنة شفافة */
+            backdrop-filter: blur(12px); /* تأثير الضباب */
+            width: 90%; max-width: 500px; 
+            padding: 40px; 
+            border-radius: 30px; 
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.7); 
+            color: white;
+            text-align: center;
+        }
+
+        h2 { color: #00f2ff; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); margin-bottom: 25px; }
+
+        input[type="text"] { 
+            width: 100%; padding: 12px; margin-bottom: 20px; 
+            border: 1px solid #00f2ff; border-radius: 12px; 
+            background: rgba(255, 255, 255, 0.1); color: white; 
+            text-align: center; box-sizing: border-box;
+        }
+
+        /* 3. تصميم صناديق المجالات */
+        .field-box { 
+            background: rgba(0, 242, 255, 0.1); 
+            border: 1px solid rgba(0, 242, 255, 0.5); 
+            margin: 10px 0; border-radius: 12px; 
+            cursor: pointer; padding: 15px; 
+            font-weight: bold; transition: 0.3s; color: #00f2ff;
+        }
+        .field-box:hover { 
+            background: rgba(0, 242, 255, 0.2); 
+            box-shadow: 0 0 15px #00f2ff;
+        }
+
+        .units { 
+            display: none; text-align: right; 
+            padding: 15px; background: rgba(0, 0, 0, 0.4); 
+            border-radius: 12px; margin-bottom: 10px;
+            border-right: 3px solid #00f2ff;
+        }
+
+        /* 4. زر البداية المتوهج */
+        button { 
+            background: linear-gradient(45deg, #00c6ff, #0072ff); 
+            color: white; border: none; 
+            padding: 15px 40px; border-radius: 50px; 
+            cursor: pointer; font-size: 20px; font-weight: bold; 
+            margin-top: 20px; transition: 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 114, 255, 0.5);
+        }
+        button:hover { transform: scale(1.05); box-shadow: 0 0 30px #00f2ff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🏆 تحدي المعلوماتية 🏆</h2>
+    <input type="text" id="studentName" placeholder="اكتبي اسم التلميذ هنا...">
+
+    <p style="color: #ccc;">اختر المجال ثم الوحدات التعليمية:</p>
+
+   <div class="field-box" onclick="toggleUnits('field1')">1. بيئة التعامل مع الحاسوب ▼</div>
+    <div id="field1" class="units">
+        <input type="checkbox"> تقنية المعلومات <br>
+        <input type="checkbox"> تجميع الحاسوب <br>
+        <input type="checkbox"> نظام التشغيل <br>
+        <input type="checkbox"> حماية الحاسوب <br>
+        <input type="checkbox"> الشبكة المحلية
+    </div>
+
+    <div class="field-box" onclick="toggleUnits('field2')">2. المخططات والخوارزميات ▼</div>
+    <div id="field2" class="units">
+        <input type="checkbox"> المخطط الانسيابي <br>
+        <input type="checkbox"> إنشاء المخطط الانسيابي <br>
+        <input type="checkbox"> مدخل إلى الخوارزمية <br>
+        <input type="checkbox"> التعليمات الأساسية
+    </div>
+
+    <div class="field-box" onclick="toggleUnits('field3')">3. تقنيات الويب ▼</div>
+    <div id="field3" class="units">
+        <input type="checkbox"> المتصفح <br>
+        <input type="checkbox"> إنشاء صفحة ويب <br>
+        <input type="checkbox"> أدوات التواصل <br>
+        <input type="checkbox"> البريد الإلكتروني
+    </div>
+
+    <div class="field-box" onclick="toggleUnits('field4')">4. المكتبية ▼</div>
+    <div id="field4" class="units">
+        <input type="checkbox"> معالج النصوص <br>
+        <input type="checkbox"> جداول البيانات <br>
+        <input type="checkbox"> العروض التقديمية
+    </div>
+
+    <button onclick="startQuiz()">ابدأ التحدي 🚀</button>
+</div>
+
+<script>
+    function toggleUnits(id) {
+        var element = document.getElementById(id);
+        element.style.display = (element.style.display === "block") ? "none" : "block";
+    }
+
+    function startQuiz() {
+        var name = document.getElementById('studentName').value;
+        if(name === "") {
+            alert("من فضلك ادخلي اسمك!");
+        } else {
+            localStorage.setItem('userName', name);
+            window.location.href = "quiz.html";
+        }
+    }
+</script>
+
+</body>
+</html>
+
+  
