@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تحدي المعلوماتية - الأسئلة</title>
     <style>
         body { 
@@ -62,6 +63,13 @@
             border-radius: 50px; color: #00f2ff;
             font-weight: bold; font-size: 20px;
             box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+        }
+        @media (orientation: landscape) and (max-height: 500px) {
+            .quiz-card { flex-direction: row; flex-wrap: wrap; padding: 15px; margin-top: 45px; gap: 10px; }
+            .question { width: 45%; font-size: 18px; margin: 0; }
+            #optionsContainer { width: 50%; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+            .option { padding: 8px; font-size: 14px; margin: 0; }
+            .stamp { width: 60px; top: -20px; }
         }
     </style>
 </head>
@@ -389,35 +397,24 @@ function handleSelection(element, optionIndex) {
     const qData = quizQuestions[currentQuestionIndex];
     const allOptions = document.querySelectorAll('.option');
     
-    // 1. تعطيل الأزرار لمنع الضغط المتكرر
     allOptions.forEach(btn => btn.disabled = true);
-    
-    // 2. إيقاف المؤقت
     clearInterval(timerId);
     
-    // 3. التحقق من صحة الإجابة المحددة (مقارنة النص لضمان الدقة مع الخلط العشوائي)
+    // التحقق من الإجابة بمقارنة النص لضمان الدقة مع الخلط
     const isCorrect = qData.correct.some(idx => qData.options[idx] === element.innerText);
 
     if(isCorrect) {
-        // --- حالة الإجابة الصحيحة ---
         playSfx('correct');
         score++;
-        document.getElementById('score').innerText = score; // تحديث النتيجة
-        
+        document.getElementById('score').innerText = score;
         element.style.background = "rgba(39, 174, 96, 0.9)"; // أخضر
-        element.style.border = "2px solid #2ecc71";
         document.getElementById('correctStamp').style.display = "block";
     } else {
-        // --- حالة الإجابة الخاطئة ---
         playSfx('wrong');
         element.style.background = "rgba(192, 57, 43, 0.9)"; // أحمر
-        element.style.border = "2px solid #e74c3c";
         document.getElementById('wrongStamp').style.display = "block";
-        
-        // هنا لم نضف أي كود لتلوين الأزرار الأخرى بالأخضر كما طلبتِ
     }
 
-    // 4. الانتقال للسؤال التالي بعد ثانية ونصف
     setTimeout(() => {
         currentQuestionIndex++;
         showQuestion();
