@@ -4,68 +4,69 @@
     <meta charset="UTF-8">
     <title>تحدي المعلوماتية - القائمة الرئيسية</title>
     <style>
-        /* 1. التوسيط الكامل للصفحة */
         body { 
             margin: 0; padding: 0;
             font-family: 'Segoe UI', Tahoma, sans-serif; 
             background: url('1.png') no-repeat center center fixed; 
             background-size: cover;
-            display: flex; 
-            align-items: center; /* توسيط عمودي */
-            justify-content: center; /* توسيط أفقي */
-            height: 100vh;
-            overflow: hidden;
+            display: flex; align-items: center; justify-content: center; 
+            height: 100vh; overflow: hidden;
         }
 
-        /* 2. تصميم الحاوية الزجاجية */
         .container { 
-            background: rgba(10, 25, 47, 0.8); /* خلفية داكنة شفافة */
-            backdrop-filter: blur(12px); /* تأثير الضباب */
-            width: 90%; max-width: 500px; 
-            padding: 40px; 
-            border-radius: 30px; 
+            background: rgba(10, 25, 47, 0.8); 
+            backdrop-filter: blur(12px); 
+            width: 95%; max-width: 550px; 
+            padding: 30px; border-radius: 30px; 
             border: 1px solid rgba(0, 242, 255, 0.3);
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.7); 
-            color: white;
-            text-align: center;
+            color: white; text-align: center;
+            max-height: 90vh; overflow-y: auto;
         }
 
-        h2 { color: #00f2ff; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); margin-bottom: 25px; }
+        h2 { color: #00f2ff; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); margin-bottom: 20px; }
 
         input[type="text"] { 
-            width: 100%; padding: 12px; margin-bottom: 20px; 
+            width: 100%; padding: 12px; margin-bottom: 15px; 
             border: 1px solid #00f2ff; border-radius: 12px; 
             background: rgba(255, 255, 255, 0.1); color: white; 
-            text-align: center; box-sizing: border-box;
+            text-align: center; box-sizing: border-box; font-size: 16px;
         }
 
-        /* 3. تصميم صناديق المجالات */
         .field-box { 
             background: rgba(0, 242, 255, 0.1); 
             border: 1px solid rgba(0, 242, 255, 0.5); 
-            margin: 10px 0; border-radius: 12px; 
-            cursor: pointer; padding: 15px; 
+            margin: 8px 0; border-radius: 12px; 
+            cursor: pointer; padding: 12px; 
             font-weight: bold; transition: 0.3s; color: #00f2ff;
+            display: flex; justify-content: center; align-items: center; gap: 15px; 
         }
-        .field-box:hover { 
-            background: rgba(0, 242, 255, 0.2); 
-            box-shadow: 0 0 15px #00f2ff;
-        }
+        .field-box:hover { background: rgba(0, 242, 255, 0.2); box-shadow: 0 0 15px #00f2ff; }
+
+        .icon { font-size: 14px; transition: 0.3s; }
 
         .units { 
             display: none; text-align: right; 
-            padding: 15px; background: rgba(0, 0, 0, 0.4); 
-            border-radius: 12px; margin-bottom: 10px;
-            border-right: 3px solid #00f2ff;
+            padding: 12px; background: rgba(0, 0, 0, 0.4); 
+            border-radius: 12px; margin-bottom: 8px;
+            border-right: 4px solid #00f2ff;
         }
 
-        /* 4. زر البداية المتوهج */
+        .unit-item { display: flex; align-items: center; gap: 10px; margin: 5px 0; cursor: pointer; transition: 0.3s; }
+
+        /* ستايل الخيارات المعطلة (الرمادي) */
+        .disabled-unit {
+            opacity: 0.3;
+            filter: grayscale(1);
+            cursor: not-allowed !important;
+        }
+
         button { 
             background: linear-gradient(45deg, #00c6ff, #0072ff); 
             color: white; border: none; 
-            padding: 15px 40px; border-radius: 50px; 
+            padding: 15px 50px; border-radius: 50px; 
             cursor: pointer; font-size: 20px; font-weight: bold; 
-            margin-top: 20px; transition: 0.3s;
+            margin-top: 15px; transition: 0.3s;
             box-shadow: 0 5px 20px rgba(0, 114, 255, 0.5);
         }
         button:hover { transform: scale(1.05); box-shadow: 0 0 30px #00f2ff; }
@@ -75,63 +76,157 @@
 
 <div class="container">
     <h2>🏆 تحدي المعلوماتية 🏆</h2>
-    <input type="text" id="studentName" placeholder="اكتبي اسم التلميذ هنا...">
+    <input type="text" id="studentName" placeholder="اكتب اسمك هنا...">
 
-    <p style="color: #ccc;">اختر المجال ثم الوحدات التعليمية:</p>
+    <p style="color: #00f2ff; font-weight: bold; font-size: 16px; text-align: center; margin: 15px 0;">
+        الدروس المختارة: <span id="countDisplay">0</span> / 3
+    </p>
 
-   <div class="field-box" onclick="toggleUnits('field1')">1. بيئة التعامل مع الحاسوب ▼</div>
+    <div class="field-box" onclick="toggleUnits('field1')">
+        <span>1. بيئة التعامل مع الحاسوب</span> <span class="icon">▼</span>
+    </div>
     <div id="field1" class="units">
-        <input type="checkbox"> تقنية المعلومات <br>
-        <input type="checkbox"> تجميع الحاسوب <br>
-        <input type="checkbox"> نظام التشغيل <br>
-        <input type="checkbox"> حماية الحاسوب <br>
-        <input type="checkbox"> الشبكة المحلية
+        <label class="unit-item"><input type="checkbox" value="تقنية المعلومات" onchange="checkCheckboxes()"> <span>تقنية المعلومات</span></label>
+        <label class="unit-item"><input type="checkbox" value="تجميع الحاسوب" onchange="checkCheckboxes()"> <span>تجميع الحاسوب</span></label>
+        <label class="unit-item"><input type="checkbox" value="نظام التشغيل" onchange="checkCheckboxes()"> <span>نظام التشغيل</span></label>
+        <label class="unit-item"><input type="checkbox" value="حماية الحاسوب" onchange="checkCheckboxes()"> <span>حماية الحاسوب</span></label>
+        <label class="unit-item"><input type="checkbox" value="الشبكة المحلية" onchange="checkCheckboxes()"> <span>الشبكة المحلية</span></label>
     </div>
 
-    <div class="field-box" onclick="toggleUnits('field2')">2. المخططات والخوارزميات ▼</div>
+    <div class="field-box" onclick="toggleUnits('field2')">
+        <span>2. المخططات والخوارزميات</span> <span class="icon">▼</span>
+    </div>
     <div id="field2" class="units">
-        <input type="checkbox"> المخطط الانسيابي <br>
-        <input type="checkbox"> إنشاء المخطط الانسيابي <br>
-        <input type="checkbox"> مدخل إلى الخوارزمية <br>
-        <input type="checkbox"> التعليمات الأساسية
+        <label class="unit-item"><input type="checkbox" value="المخطط الانسيابي" onchange="checkCheckboxes()"> <span>المخطط الانسيابي</span></label>
+        <label class="unit-item"><input type="checkbox" value="إنشاء المخطط" onchange="checkCheckboxes()"> <span>إنشاء المخطط الانسيابي</span></label>
+        <label class="unit-item"><input type="checkbox" value="مدخل للخوارزمية" onchange="checkCheckboxes()"> <span>مدخل إلى الخوارزمية</span></label>
+        <label class="unit-item"><input type="checkbox" value="التعليمات الأساسية" onchange="checkCheckboxes()"> <span>التعليمات الأساسية</span></label>
     </div>
 
-    <div class="field-box" onclick="toggleUnits('field3')">3. تقنيات الويب ▼</div>
+    <div class="field-box" onclick="toggleUnits('field3')">
+        <span>3. تقنيات الويب</span> <span class="icon">▼</span>
+    </div>
     <div id="field3" class="units">
-        <input type="checkbox"> المتصفح <br>
-        <input type="checkbox"> إنشاء صفحة ويب <br>
-        <input type="checkbox"> أدوات التواصل <br>
-        <input type="checkbox"> البريد الإلكتروني
+        <label class="unit-item"><input type="checkbox" value="المتصفح" onchange="checkCheckboxes()"> <span>المتصفح</span></label>
+        <label class="unit-item"><input type="checkbox" value="صفحة ويب" onchange="checkCheckboxes()"> <span>إنشاء صفحة ويب</span></label>
+        <label class="unit-item"><input type="checkbox" value="أدوات التواصل" onchange="checkCheckboxes()"> <span>أدوات التواصل</span></label>
+        <label class="unit-item"><input type="checkbox" value="البريد الإلكتروني" onchange="checkCheckboxes()"> <span>البريد الإلكتروني</span></label>
     </div>
 
-    <div class="field-box" onclick="toggleUnits('field4')">4. المكتبية ▼</div>
+    <div class="field-box" onclick="toggleUnits('field4')">
+        <span>4. المكتبية</span> <span class="icon">▼</span>
+    </div>
     <div id="field4" class="units">
-        <input type="checkbox"> معالج النصوص <br>
-        <input type="checkbox"> جداول البيانات <br>
-        <input type="checkbox"> العروض التقديمية
+        <label class="unit-item"><input type="checkbox" value="معالج النصوص" onchange="checkCheckboxes()"> <span>معالج النصوص</span></label>
+        <label class="unit-item"><input type="checkbox" value="جداول البيانات" onchange="checkCheckboxes()"> <span>جداول البيانات</span></label>
+        <label class="unit-item"><input type="checkbox" value="العروض التقديمية" onchange="checkCheckboxes()"> <span>العروض التقديمية</span></label>
     </div>
 
-    <button onclick="startQuiz()">ابدأ التحدي 🚀</button>
+    <div id="levelSection" style="display: none; opacity: 0; transition: opacity 1s; margin-top: 30px; padding: 20px; border-top: 1px solid #00f2ff;">
+        <h3 style="color: #00f2ff;">حدد مستوى الصعوبة:</h3>
+        <div id="levelBox" style="padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid #00f2ff; text-align: center;">
+            <div id="levelIcon" style="font-size: 50px;">😊</div>
+            <div id="levelName" style="font-size: 24px; font-weight: bold; color: #4caf50;">EASY</div>
+            <input type="range" id="levelSlider" min="1" max="3" value="1" 
+                   style="width: 80%; margin: 15px 0; accent-color: #4caf50;" 
+                   oninput="updateLevelVisuals()">
+        </div>
+        <button id="startBtn" onclick="startQuiz()" style="margin-top: 20px;">ابدأ التحدي 🚀</button>
+    </div>
 </div>
 
 <script>
-    function toggleUnits(id) {
-        var element = document.getElementById(id);
-        element.style.display = (element.style.display === "block") ? "none" : "block";
+const SOUNDS = { click: 'click.mp3', start: 'click.mp3', error: 'wrong.mp3' };
+
+function playSfx(type) {
+    let audio = new Audio(SOUNDS[type]);
+    audio.volume = 0.7;
+    audio.play().catch(() => console.log("ملف الصوت مفقود"));
+}
+
+function toggleUnits(id) {
+    playSfx('click');
+    var el = document.getElementById(id);
+    var icon = el.previousElementSibling.querySelector('.icon');
+    
+    if (el.style.display === "block") {
+        el.style.display = "none";
+        icon.innerText = "▼";
+    } else {
+        el.style.display = "block";
+        icon.innerText = "▲";
+    }
+}
+
+function checkCheckboxes() {
+    const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+    const countDisplay = document.getElementById('countDisplay');
+    const levelSection = document.getElementById('levelSection');
+
+    countDisplay.innerText = checkedBoxes.length;
+
+    if (checkedBoxes.length >= 3) {
+        // ميزة الرمادي: تعطيل البقية وتغيير مظهرهم
+        allCheckboxes.forEach(cb => {
+            if (!cb.checked) {
+                cb.disabled = true;
+                cb.parentElement.classList.add('disabled-unit');
+            }
+        });
+
+        // إظهار قسم المستوى
+        setTimeout(() => {
+            levelSection.style.display = 'block';
+            setTimeout(() => { levelSection.style.opacity = '1'; levelSection.scrollIntoView({ behavior: 'smooth' }); }, 50);
+        }, 500);
+    } else {
+        // إعادة التفعيل إذا قمتِ بإلغاء اختيار درس
+        allCheckboxes.forEach(cb => {
+            cb.disabled = false;
+            cb.parentElement.classList.remove('disabled-unit');
+        });
+        levelSection.style.display = 'none';
+        levelSection.style.opacity = '0';
+    }
+}
+
+function updateLevelVisuals() {
+    const val = document.getElementById('levelSlider').value;
+    const icon = document.getElementById('levelIcon');
+    const name = document.getElementById('levelName');
+    const slider = document.getElementById('levelSlider');
+
+    if (val == "1") {
+        icon.innerText = "😊"; name.innerText = "EASY"; name.style.color = "#4caf50"; slider.style.accentColor = "#4caf50";
+    } else if (val == "2") {
+        icon.innerText = "😎"; name.innerText = "MEDIUM"; name.style.color = "#ff9800"; slider.style.accentColor = "#ff9800";
+    } else {
+        icon.innerText = "😈"; name.innerText = "HARD"; name.style.color = "#f44336"; slider.style.accentColor = "#f44336";
+    }
+}
+
+function startQuiz() {
+    const nameInput = document.getElementById('studentName').value;
+    const selected = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+    if (!nameInput) {
+        alert("يرجى كتابة اسمك أولاً!");
+        playSfx('error');
+        return;
     }
 
-    function startQuiz() {
-        var name = document.getElementById('studentName').value;
-        if(name === "") {
-            alert("من فضلك ادخلي اسمك!");
-        } else {
-            localStorage.setItem('userName', name);
-            window.location.href = "quiz.html";
-        }
+    if (selected.length === 3) {
+        playSfx('start');
+        localStorage.setItem('studentName', nameInput);
+        localStorage.setItem('selectedLessons', JSON.stringify(selected));
+        localStorage.setItem('selectedLevel', document.getElementById('levelSlider').value);
+        setTimeout(() => { window.location.href = "quiz.html"; }, 500);
+    } else {
+        alert("يرجى اختيار 3 دروس!");
     }
+}
 </script>
 
 </body>
 </html>
-
-  

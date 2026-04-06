@@ -41,111 +41,425 @@
             transform: scale(1.02);
             box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
         }
-         #wrongStamp {
-    filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7)); /* توهج أحمر */
-}
-         #correctStamp {
-    filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.7)); /* توهج أخضر */
-}
-        /* تعديل الختم ليظهر فقط عند الإجابة الصحيحة */
+
+        #wrongStamp { filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7)); }
+        #correctStamp { filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.7)); }
+
         .stamp { 
             position: absolute; top: -30px; left: -30px; 
             width: 100px; z-index: 100;
-            display: none; /* مخفي افتراضياً */
+            display: none;
         }
 
-        /* تصميم لوحة المعلومات في الأعلى */
-.stats-container {
-    position: absolute;
-    top: -70px; /* تظهر فوق البطاقة */
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    gap: 20px;
-}
+        .stats-container {
+            position: absolute; top: -70px; width: 100%;
+            display: flex; justify-content: space-around; gap: 20px;
+        }
 
-.stat-item {
-    background: rgba(10, 25, 47, 0.9);
-    border: 1px solid #00f2ff;
-    padding: 10px 25px;
-    border-radius: 50px;
-    color: #00f2ff;
-    font-weight: bold;
-    font-size: 20px;
-    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.stat-item span {
-    color: white; /* الأرقام باللون الأبيض لتكون واضحة */
-}
+        .stat-item {
+            background: rgba(10, 25, 47, 0.9);
+            border: 1px solid #00f2ff; padding: 10px 25px;
+            border-radius: 50px; color: #00f2ff;
+            font-weight: bold; font-size: 20px;
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+        }
     </style>
 </head>
 <body>
 
 <div class="quiz-card">
     <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" id="correctStamp" class="stamp">
-    <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" id="correctStamp" class="stamp">
     <img src="https://cdn-icons-png.flaticon.com/512/190/190406.png" id="wrongStamp" class="stamp">
+    
     <div class="stats-container">
-    <div class="stat-item">
-        ⌛ الوقت: <span id="timer">30</span>
+        <div class="stat-item">⌛ الوقت: <span id="timer">20</span></div>
+        <div class="stat-item">🏆 النتيجة: <span id="score">0</span></div>
     </div>
 
-    <div class="stat-item">
-        🏆 النتيجة: <span id="score">0</span>
-    </div>
-</div>
-
-    <div class="hint">ملاحظة رقيقة: اختر إجابة واحدة فقط.</div>
-    <div class="question" id="questionText">السؤال 1: ما هو المكون البرمجي الذي يمثل "عقل" الحاسوب؟</div>
-
-    <div id="optionsContainer">
-        <button class="option" onclick="checkAnswer(this, true)">وحدة المعالجة المركزية (CPU)</button>
-        <button class="option" onclick="checkAnswer(this, false)">الذاكرة العشوائية (RAM)</button>
-        <button class="option" onclick="checkAnswer(this, false)">الشاشة</button>
-    </div>
+    <div class="hint" id="hintText">ملاحظة رقيقة: اختر إجابة واحدة فقط.</div>
+    <div class="question" id="questionText">جاري تحميل الأسئلة...</div>
+    <div id="optionsContainer"></div>
 </div>
 
 <script>
-    var studentName = localStorage.getItem('userName') || "يا بطل";
-    var score = 0;
+  // الربط بالملفات الموجودة في المجلد الرئيسي مباشرة
+const sounds = {
+    correct: new Audio('correct.mp3'), // تأكدي أن الاسم يطابق ملفك (مثلاً right.mp3 أو win.mp3)
+    wrong: new Audio('wrong.mp3'),   // تأكدي أن الاسم يطابق ملفك بالضبط
+    click: new Audio('click.mp3')
+};
 
-   function checkAnswer(element, isCorrect) {
-    var allOptions = document.querySelectorAll('.option');
-    allOptions.forEach(opt => opt.disabled = true);
+function playSfx(type) {
+    if (sounds[type]) {
+        sounds[type].currentTime = 0; 
+        sounds[type].play().catch(e => {
+            console.log("تعذر تشغيل الصوت، تأكدي من اسم الملف:", e);
+        });
+    }
+} 
 
-    if(isCorrect) {
-        score = 1; // لأننا نملك سؤالاً واحداً حالياً
-        document.getElementById('score').innerText = score;
-        element.style.background = "rgba(40, 167, 69, 0.4)";
-        document.getElementById('correctStamp').style.display = "block";
-    } else {
+
+const allQuestions = {
+    // الميدان 1: المفاهيم الأساسية والعتاد
+    "تقنية المعلومات": [
+        { q: "ما هي المكونات الأساسية لتقنية المعلومات؟", options: ["العتاد والبرمجيات", "الطاولة", "الورق"], correct: [0], limit: 1 },
+        { q: "المعلوماتية هي علم معالجة المعلومات...", options: ["آلياً", "يدوياً", "شفهياً"], correct: [0], limit: 1 },
+        { q: "البيانات قبل المعالجة تسمى؟", options: ["نتائج", "معلومات", "معطيات خام"], correct: [2], limit: 1 },
+        { q: "وحدة قياس سعة التخزين هي؟", options: ["الأوكتي", "المتر", "الجرام"], correct: [0], limit: 1 },
+        { q: "ما هو دور الحاسوب الأساسي؟", options: ["التخزين والمعالجة", "التنظيف", "الرسم فقط"], correct: [0], limit: 1 },
+        { q: "البرمجيات تنقسم إلى نظم تشغيل و...؟", options: ["تطبيقات", "أسلاك", "شاشات"], correct: [0], limit: 1 },
+        { q: "أي مما يلي يعتبر عتاداً (Hardware)؟", options: ["الفأرة", "الوورد", "نظام ويندوز"], correct: [0], limit: 1 },
+        { q: "المعلومات هي بيانات تم...؟", options: ["معالجتها", "حذفها", "إهمالها"], correct: [0], limit: 1 },
+        { q: "تعتبر الشاشة من وحدات؟", options: ["الإخراج", "الإدخال", "المعالجة"], correct: [0], limit: 1 }
+    ],
+    "تجميع الحاسوب": [
+        { q: "القطعة التي تربط كل مكونات الحاسوب ببعضها هي:", options: ["اللوحة الأم", "الفأرة", "السماعات"], correct: [0] },
+        { q: "يستخدم القرص الصلب لـ...", options: ["عرض الصور", "تخزين البيانات دائماً", "الطباعة"], correct: [1] },
+        { q: "العقل المدبر للحاسوب هو:", options: ["الذاكرة الحية", "المعالج (CPU)", "الشاشة"], correct: [1] },
+        { q: "الذاكرة التي تفقد محتواها عند انقطاع الكهرباء:", options: ["ROM", "RAM", "القرص الصلب"], correct: [1] },
+        { q: "وحدة المعالجة المركزية تختصر بـ:", options: ["RAM", "USB", "CPU"], correct: [2] },
+        { q: "الذاكرة الميتة التي تحتوي إعدادات المصنع هي:", options: ["RAM", "ROM", "HDD"], correct: [1] },
+        { q: "يتم توصيل الفأرة غالباً عبر منفذ:", options: ["HDMI", "USB", "VGA"], correct: [1] },
+        { q: "وظيفة مروحة المعالج هي:", options: ["التبريد", "تسريع الإنترنت", "حفظ الصور"], correct: [0] },
+        { q: "أي وحدة تستخدم لإدخال الصور الورقية للحاسوب؟", options: ["الطابعة", "الماسح الضوئي", "السماعات"], correct: [1] }
+    ],
+    "نظام التشغيل": [
+       { q: "ما هو دور نظام التشغيل؟", options: ["الوساطة بين المستخدم والعتاد", "صناعة الشاشات", "الرسم"], correct: [0] },
+        { q: "من أشهر نظم التشغيل للحواسيب:", options: ["Android", "Windows", "iOS"], correct: [1] },
+        { q: "تسمى عملية تشغيل الحاسوب بـ:", options: ["Format", "Boot (الإقلاع)", "Delete"], correct: [1] },
+        { q: "سطح المكتب (Desktop) هو جزء من:", options: ["لوحة المفاتيح", "واجهة نظام التشغيل", "المعالج"], correct: [1] },
+        { q: "الأيقونة هي رمز صغير يمثل:", options: ["برنامج أو ملف", "سلك كهرباء", "برغي"], correct: [0] },
+        { q: "شريط المهام يوجد غالباً في:", options: ["أعلى الشاشة", "أسفل الشاشة", "خلف الجهاز"], correct: [1] },
+        { q: "نظام التشغيل Linux يعتبر نظاماً:", options: ["مغلق المصدر", "مفتوح المصدر", "بمقابل مادي"], correct: [1] },
+        { q: "لحذف ملف نهائياً نستخدم سلة:", options: ["المحذوفات", "الأدوات", "المهام"], correct: [0] },
+        { q: "يسمح نظام التشغيل بـ:", options: ["تسيير الملفات", "كسر الشاشة", "تسخين المعالج"], correct: [0] }
+    ],
+    "حماية الحاسوب": [
+       { q: "ما هو الفيروس (Virus)؟", options: ["برنامج تخريبي", "جزء من الشاشة", "مروحة المعالج"], correct: [0] },
+        { q: "أفضل وسيلة لحماية الحاسوب هي تثبيت:", options: ["برنامج مضاد الفيروسات", "متصفح الويب", "لعبة"], correct: [0] },
+        { q: "من أنواع البرامج الضارة:", options: ["حصان طروادة", "الوورد", "الرسام"], correct: [0] },
+        { q: "لحماية ملفاتك من الضياع يجب عمل:", options: ["نسخة احتياطية", "حذف للملف", "تغيير الاسم"], correct: [0] },
+        { q: "تستخدم الجدران النارية (Firewall) لـ:", options: ["منع الاختراق", "تبريد الجهاز", "زيادة الصوت"], correct: [0] },
+        { q: "كلمة السر القوية يجب أن تحتوي على:", options: ["رموز وأرقام وحروف", "اسمك فقط", "12345"], correct: [0] },
+        { q: "ما هو الـ Spam؟", options: ["رسائل مزعجة", "برنامج رسم", "نوع من الذاكرة"], correct: [0] },
+        { q: "تحديث نظام التشغيل يساعد في:", options: ["سد الثغرات الأمنية", "تغيير لون الجهاز", "حرق المعالج"], correct: [0] },
+        { q: "عند تحميل ملف من الإنترنت يجب أولاً:", options: ["فحصه من الفيروسات", "فتحه فوراً", "إرساله لصديق"], correct: [0] }
+    ],
+    "الشبكة المحلية": [
+       { q: "ماذا يعني اختصار LAN؟", options: ["شبكة محلية", "شبكة عالمية", "قمر صناعي"], correct: [0] },
+        { q: "الجهاز الذي يربط الحواسيب في الشبكة هو:", options: ["الموزع (Switch)", "المعالج", "الطابعة"], correct: [0] },
+        { q: "من فوائد الشبكة مشاركة:", options: ["الطابعة والملفات", "لوحة المفاتيح", "الكهرباء"], correct: [0] },
+        { q: "كابل الشبكة الأكثر شيوعاً هو:", options: ["RJ45", "HDMI", "SATA"], correct: [0] },
+        { q: "الشبكة التي تربط أجهزة في غرفة واحدة هي:", options: ["محليّة", "وطنية", "دولية"], correct: [0] },
+        { q: "يستخدم الـ IP لـ:", options: ["تعريف الجهاز في الشبكة", "قياس الوزن", "تغيير الخط"], correct: [0] },
+        { q: "الـ Wi-Fi هو اتصال شبكي:", options: ["لاسلكي", "بواسطة أسلاك", "عبر الراديو"], correct: [0] },
+        { q: "الخادم (Server) هو جهاز يقوم بـ:", options: ["تقديم الخدمات للشبكة", "إطفاء الحواسيب", "الرسم"], correct: [0] },
+        { q: "تعتبر شبكة المدرسة مثالاً على:", options: ["LAN", "WAN", "MAN"], correct: [0] }
+    ],
+
+    // الميدان 2: المخططات والخوارزميات
+    "المخطط الانسيابي": [
+      { q: "الشكل البيضاوي في المخطط يمثل:", options: ["البداية والنهاية", "القرار", "العملية"], correct: [0] },
+        { q: "يستخدم المستطيل لتمثيل:", options: ["إدخال بيانات", "عملية حسابية", "نهاية"], correct: [1] },
+        { q: "شكل متوازي الأضلاع يمثل:", options: ["البداية", "الإدخال والإخراج", "الشرط"], correct: [1] },
+        { q: "شكل المعين (Diamond) يستخدم لـ:", options: ["القرار والشرط", "الربط", "العنوان"], correct: [0] },
+        { q: "الأسهم في المخطط تحدد:", options: ["الألوان", "اتجاه سير العمليات", "حجم الشكل"], correct: [1] },
+        { q: "المخطط الانسيابي هو تمثيل...", options: ["صوتي", "بياني (رسومي)", "نصي فقط"], correct: [1] },
+        { q: "يجب أن يحتوي المخطط على بداية واحدة و...", options: ["عشر نهايات", "نهاية واحدة", "بدون نهاية"], correct: [1] },
+        { q: "تكتب كلمة 'Fin' داخل شكل:", options: ["مربع", "بيضاوي", "معين"], correct: [1] },
+        { q: "الهدف من المخطط هو تسهيل فهم:", options: ["الخوارزمية", "سعر الحاسوب", "سرعة الشاشة"], correct: [0] }
+    ], 
+    "إنشاء المخطط الانسيابي": [
+      { q: "أين نكتب العملية C = A + B؟", options: ["داخل مستطيل", "داخل بيضاوي", "داخل معين"], correct: [0] },
+        { q: "أين نكتب الجملة 'هل A أكبر من B'؟", options: ["داخل معين (قرار)", "داخل مستطيل", "داخل دائرة"], correct: [0] },
+        { q: "لإظهار كلمة 'ناجح' نستخدم شكل:", options: ["متوازي الأضلاع", "المربع", "المثلث"], correct: [0] },
+        { q: "بأي لغة نكتب داخل المخطط؟", options: ["أي لغة مفهومة", "لغة الآلة فقط", "لغة الإشارة"], correct: [0] },
+        { q: "كم سهم يخرج من شكل القرار (المعين)؟", options: ["سهمان (نعم/لا)", "سهم واحد", "لا يخرج منه سهم"], correct: [0] },
+        { q: "ماذا نكتب في بداية المخطط؟", options: ["Début", "Fin", "Calcul"], correct: [0] },
+        { q: "المخطط الانسيابي يسبق عملية:", options: ["البرمجة", "شراء الحاسوب", "الطباعة"], correct: [0] },
+        { q: "الربط بين الأجزاء البعيدة في المخطط يكون بـ:", options: ["دائرة صغيرة", "مربع كبير", "خط سميك"], correct: [0] },
+        { q: "إذا كان المخطط معقداً، فإنه يسمى:", options: ["متفرع", "خطي", "بسيط"], correct: [0] }
+    ], 
+    "مدخل إلى الخوارزمية": [
+       { q: "ما هو تعريف الخوارزمية؟", options: ["خطوات منطقية لحل مشكلة", "نوع من الشاشات", "كابل إنترنت"], correct: [0] },
+        { q: "تبدأ الخوارزمية دائماً بكلمة:", options: ["End", "Algorithme", "Variable"], correct: [1] },
+        { q: "الجزء الذي نعلن فيه عن المتغيرات يسمى:", options: ["الرأس", "الجزء التصريحي", "جسم الخوارزمية"], correct: [1] },
+        { q: "ما هو المتغير (Variable)؟", options: ["مكان في الذاكرة يحمل قيمة", "شاشة متغيرة", "نوع من الورق"], correct: [0] },
+        { q: "التعليمات البرمجية تكتب بين:", options: ["Debut و Fin", "If و Then", "Read و Write"], correct: [0] },
+        { q: "التعليمة التي تسمح بإظهار نتيجة على الشاشة:", options: ["Lire", "Ecrire", "Read"], correct: [1] },
+        { q: "التعليمة التي تسمح للمستخدم بإدخال قيمة:", options: ["Ecrire", "Lire", "Print"], correct: [1] },
+        { q: "في الخوارزمية، الرمز ':=' يمثل عملية:", options: ["المساواة", "إسناد قيمة", "الجمع"], correct: [1] },
+        { q: "الخوارزمية سميت نسبة للعالم المسلم:", options: ["ابن سينا", "الخوارزمي", "البيروني"], correct: [1] }
+    ],
+    "التعليمات الأساسية": [
+       { q: "التعليمة التكرارية Pour تستخدم عندما:", options: ["نعرف عدد التكرارات", "لا نعرف العدد", "للمقارنة فقط"], correct: [0] },
+        { q: "التعليمة 'Si ... Alors' تستخدم لـ:", options: ["الشرط", "التكرار", "الإدخال"], correct: [0] },
+        { q: "ما هي نتيجة التعليمة 5 + 2 * 3؟", options: ["11", "21", "10"], correct: [0] },
+        { q: "لتكرار عملية ما دام الشرط محققاً نستخدم:", options: ["Tant que", "If", "Write"], correct: [0] },
+        { q: "ما هي تعليمة الإخراج في لغة باسكال مثلاً؟", options: ["Write", "Read", "Input"], correct: [0] },
+        { q: "ما هو رمز 'لا يساوي' في معظم اللغات؟", options: ["<>", "==", "++"], correct: [0] },
+        { q: "التعليمات تُنفذ في الخوارزمية بشكل:", options: ["تسلسلي", "عشوائي", "عكسي"], correct: [0] },
+        { q: "ما معنى 'Incrementer'؟", options: ["زيادة القيمة بمقدار 1", "نقص القيمة", "حذف المتغير"], correct: [0] },
+        { q: "التعليمة التي تنهي البرنامج هي:", options: ["Fin", "Start", "Go"], correct: [0] }
+    ],
+
+    // الميدان 3: تقنيات الويب
+    "المتصفح": [
+      { q: "ما هو المتصفح (Browser)؟", options: ["برنامج لفتح المواقع", "نظام تشغيل", "محرك بحث"], correct: [0] },
+        { q: "من أمثلة المتصفحات الشهيرة:", options: ["Firefox", "Word", "Excel"], correct: [0] },
+        { q: "زر التحديث (Refresh) يستخدم لـ:", options: ["إعادة تحميل الصفحة", "إغلاق المتصفح", "حذف التاريخ"], correct: [0] },
+        { q: "ما هو الـ URL؟", options: ["عنوان موقع الويب", "اسم المتصفح", "سرعة الإنترنت"], correct: [0] },
+        { q: "لتصفح المواقع بأمان نستخدم بروتوكول:", options: ["HTTPS", "HTTP", "FTP"], correct: [0] },
+        { q: "ملفات التعريف (Cookies) تستخدم لـ:", options: ["حفظ تفضيلات المستخدم", "تسريع المروحة", "تنظيف الشاشة"], correct: [0] },
+        { q: "ماذا تفعل المفضلة (Favorites)؟", options: ["حفظ المواقع المهمة", "تغيير لون المتصفح", "زيادة سرعة التحميل"], correct: [0] },
+        { q: "ما هو محرك البحث (Search Engine)؟", options: ["موقع للبحث مثل Google", "برنامج للرسم", "سلك أنترنت"], correct: [0] },
+        { q: "فتح صفحة جديدة في نفس النافذة يسمى:", options: ["Tab (تبويب)", "Window", "File"], correct: [0] }
+    ],
+    "إنشاء صفحة ويب": [
+      { q: "اللغة الأساسية لبناء صفحات الويب هي:", options: ["HTML", "Python", "Java"], correct: [0] },
+        { q: "الوسم (Tag) المسؤول عن عنوان الصفحة في المتصفح:", options: ["<body>", "<title>", "<h1>"], correct: [1] },
+        { q: "أي وسم يستخدم لكتابة فقرة نصية؟", options: ["<p>", "<br>", "<img>"], correct: [0] },
+        { q: "لإضافة سطر جديد نستخدم الوسم:", options: ["<b>", "<br>", "<i>"], correct: [1] },
+        { q: "امتداد ملف صفحة الويب هو:", options: [".txt", ".html", ".jpg"], correct: [1] },
+        { q: "الوسم الذي يحتوي على كل محتوى الصفحة الظاهر:", options: ["<head>", "<body>", "<html>"], correct: [1] },
+        { q: "لإضافة صورة نستخدم الوسم:", options: ["<a>", "<img>", "<table>"], correct: [1] },
+        { q: "الوسم <a> يستخدم لإنشاء:", options: ["جدول", "رابط تشعبي", "عنوان"], correct: [1] },
+        { q: "لجعل الخط عريضاً (Bold) نستخدم:", options: ["<b>", "<u>", "<p>"], correct: [0] }
+    ],
+    "أدوات التواصل": [
+       { q: "من أشهر شبكات التواصل الاجتماعي:", options: ["Facebook", "Calculator", "Notepad"], correct: [0] },
+        { q: "التواصل الذي يتم في نفس الوقت يسمى:", options: ["متزامن", "غير متزامن", "بريد ورقي"], correct: [0] },
+        { q: "مخاطر التواصل الاجتماعي تشمل:", options: ["التنمر الإلكتروني", "تعلم البرمجة", "سرعة الخبر"], correct: [0] },
+        { q: "تطبيق WhatsApp يستخدم لـ:", options: ["المراسلة الفورية", "تصميم المنازل", "صناعة الأدوية"], correct: [0] },
+        { q: "لحماية خصوصيتك في التواصل يجب:", options: ["عدم مشاركة كلمة السر", "نشر صورك للعامة", "قبول كل الإضافات"], correct: [0] },
+        { q: "ما هو الـ Hashtag؟", options: ["رمز لتصنيف المواضيع #", "رمز للجمع +", "عملة رقمية"], correct: [0] },
+        { q: "مكالمات الفيديو (Video Call) تعتبر تواصل:", options: ["مرئي وصوتي", "نصي فقط", "صوتي فقط"], correct: [0] },
+        { q: "ما هو الـ Profile؟", options: ["الملف الشخصي للمستخدم", "اسم المتصفح", "نوع الحاسوب"], correct: [0] },
+        { q: "يمكن استخدام التواصل الاجتماعي لـ:", options: ["التعلم عن بعد", "تخريب الحواسيب", "زيادة الوزن"], correct: [0] }
+    ],
+    "البريد الإلكتروني": [
+       { q: "ما هو الرمز الأساسي في البريد الإلكتروني؟", options: ["@", "#", "$"], correct: [0] },
+        { q: "الجزء الذي يأتي بعد @ يسمى:", options: ["اسم النطاق (Domain)", "اسم المستخدم", "كلمة السر"], correct: [0] },
+        { q: "المجلد الذي يحتوي الرسائل الواردة هو:", options: ["Inbox", "Sent", "Drafts"], correct: [0] },
+        { q: "لإرسال ملف مع الرسالة نضغط على:", options: ["إرفاق (Attachment)", "حذف", "تنسيق"], correct: [0] },
+        { q: "الرسائل غير المرغوب فيها توضع في:", options: ["Spam / Junk", "Inbox", "Trash"], correct: [0] },
+        { q: "ما معنى كلمة Subject في البريد؟", options: ["موضوع الرسالة", "اسم المرسل", "التاريخ"], correct: [0] },
+        { q: "لإرسال رد على رسالة نضغط على:", options: ["Reply", "Forward", "Delete"], correct: [0] },
+        { q: "البريد الإلكتروني وسيلة تواصل:", options: ["غير متزامنة غالباً", "فورية جداً", "ورقية"], correct: [0] },
+        { q: "بواسطة البريد يمكن إرسال:", options: ["نصوص وصور وملفات", "طعام", "قطع غيار"], correct: [0] }
+    ],
+
+
+    // الميدان 4: المكتبية
+    "معالج النصوص": [
+       { q: "ما هو البرنامج الأشهر لمعالجة النصوص؟", options: ["Microsoft Word", "Excel", "PowerPoint"], correct: [0] },
+        { q: "لتغيير حجم الخط نذهب إلى تبويب:", options: ["Accueil / Home", "Insertion", "Affichage"], correct: [0] },
+        { q: "الاختصار Ctrl + C يستخدم لـ:", options: ["النسخ", "اللصق", "القص"], correct: [0] },
+        { q: "الاختصار Ctrl + V يستخدم لـ:", options: ["اللصق", "الحفظ", "الطباعة"], correct: [0] },
+        { q: "لإدراج جدول نذهب إلى قائمة:", options: ["Insertion", "Mise en page", "Review"], correct: [0] },
+        { q: "وظيفة الأداة 'G' (أو B) هي جعل الخط:", options: ["غليظ (Bold)", "مائل", "تحته خط"], correct: [0] },
+        { q: "لحفظ الملف لأول مرة نختار:", options: ["Enregistrer sous", "Ouvrir", "Nouveau"], correct: [0] },
+        { q: "امتداد ملفات الوورد الحديثة هو:", options: [".docx", ".xlsx", ".pptx"], correct: [0] },
+        { q: "المسطرة في الوورد تساعد في:", options: ["ضبط الهوامش", "تغيير اللغة", "حذف الصور"], correct: [0] }
+    ],
+    "جداول البيانات": [
+        { q: "ما هو البرنامج المستخدم للجداول الحسابية؟", options: ["Microsoft Excel", "Word", "Access"], correct: [0] },
+        { q: "تقاطع السطر مع العمود يسمى:", options: ["خلية (Cellule)", "جدول", "إطار"], correct: [0] },
+        { q: "تبدأ الصيغة الحسابية دائماً بعلامة:", options: ["=", "+", "*"], correct: [0] },
+        { q: "رمز عملية الضرب في إكسل هو:", options: ["*", "x", "."], correct: [0] },
+        { q: "مجموعة من الخلايا المتجاورة تسمى:", options: ["مجال (Plage)", "سطر", "عمود"], correct: [0] },
+        { q: "الوظيفة SUM (أو SOMME) تستخدم لـ:", options: ["الجمع", "الطرح", "القسمة"], correct: [0] },
+        { q: "تسمى ملفات الإكسل بـ:", options: ["مصنفات (Classeurs)", "مستندات", "عروض"], correct: [0] },
+        { q: "لتمثيل البيانات بيانياً نستخدم:", options: ["المخططات البيانية", "الصور المتحركة", "الرسم اليدوي"], correct: [0] },
+        { q: "الخلية A1 تعني:", options: ["العمود A والسطر 1", "السطر A والعمود 1", "اسم المستخدم"], correct: [0] }
+    ],
+    "العروض التقديمية": [
+       { q: "ما هو البرنامج المخصص للعروض التقديمية؟", options: ["PowerPoint", "Word", "Excel"], correct: [0] },
+        { q: "تسمى صفحات البوربوينت بـ:", options: ["شرائح (Diapositives)", "أوراق", "صفحات"], correct: [0] },
+        { q: "لبدء العرض التقديمي نضغط على مفتاح:", options: ["F5", "F1", "ESC"], correct: [0] },
+        { q: "لإضافة حركة للنصوص نستخدم تبويب:", options: ["Animations", "Transitions", "Design"], correct: [0] },
+        { q: "التأثير عند الانتقال من شريحة لأخرى يسمى:", options: ["Transition", "Animation", "Sound"], correct: [0] },
+        { q: "يمكن إضافة صوت وفيديو للشريحة؟", options: ["نعم", "لا", "في حالات نادرة"], correct: [0] },
+        { q: "امتداد ملفات البوربوينت هو:", options: [".pptx", ".docx", ".pdf"], correct: [0] },
+        { q: "قوالب التصميم الجاهزة توجد في تبويب:", options: ["Conception / Design", "Insertion", "Review"], correct: [0] },
+        { q: "لإيقاف العرض التقديمي نضغط على:", options: ["ESC", "Enter", "Space"], correct: [0] }
+    ]
+};
+
+
+// المتغيرات العامة
+var score = 0;
+var currentQuestionIndex = 0;
+var quizQuestions = [];
+var selectedForCurrent = []; // تم تعريفها هنا لتعمل في كل الدوال
+var timeLeft = 20;
+var timerId;
+// في ملف الأسئلة (quiz.html)
+window.onload = function() {
+    prepareQuiz(); // هذا السطر هو المحرك الذي يبدأ كل شيء
+};
+ function prepareQuiz() {
+    // 1. جلب البيانات من الذاكرة
+    const selectedLessons = JSON.parse(localStorage.getItem('selectedLessons')) || []; 
+    const userLevel = parseInt(localStorage.getItem('selectedLevel')) || 1;
+    
+    // 2. تصفير المصفوفة للبدء من جديد
+    quizQuestions = [];
+
+    // 3. تحديد نطاق الأسئلة (Start & End) بناءً على المستوى
+    let start, end;
+    if (userLevel === 1) { start = 0; end = 3; }      
+    else if (userLevel === 2) { start = 3; end = 6; } 
+    else { start = 6; end = 9; }                      
+
+    // 4. جمع 3 أسئلة من كل درس مختار (المجموع 9)
+    selectedLessons.forEach(lesson => {
+        if (allQuestions[lesson]) {
+            let levelQuestions = allQuestions[lesson].slice(start, end);
+            quizQuestions = quizQuestions.concat(levelQuestions);
+        }
+    });
+
+    // 5. إضافة سؤال التحدي (البونص) ليصبح المجموع 10
+    addBonusQuestion(userLevel);
+
+    // 6. خلط الأسئلة عشوائياً
+    quizQuestions.sort(() => Math.random() - 0.5);
+
+    // 7. تصفير العداد والنتيجة والبدء
+    if (quizQuestions.length > 0) {
+        currentQuestionIndex = 0;
         score = 0;
-        element.style.background = "rgba(220, 53, 69, 0.4)";
-        document.getElementById('wrongStamp').style.display = "block";
+        showQuestion();
+    } else {
+        document.getElementById('questionText').innerText = "خطأ في تحميل الأسئلة، تأكد من اختيار الدروس!";
+    }
+}
+
+function addBonusQuestion(level) {
+    const bonusData = {
+        "1": { q: "تحدي (سهل): ما هو اختصار الحاسوب الشخصي؟", options: ["PC", "TV", "OS"], correct: [0], limit: 1 },
+        "2": { q: "تحدي (متوسط): لغة برمجة شهيرة تستخدم للذكاء الاصطناعي؟", options: ["Python", "HTML", "CSS"], correct: [0], limit: 1 },
+        "3": { q: "تحدي (صعب): ما هو النظام العددي الذي يعتمد على 0 و 1؟", options: ["العشري", "الثنائي (Binary)", "الستة عشري"], correct: [1], limit: 1 }
+    };
+    
+    if (bonusData[level]) {
+        quizQuestions.push(bonusData[level]);
+    }
+}
+
+function showQuestion() {
+    if (currentQuestionIndex >= quizQuestions.length) {
+        finishQuiz();
+        return;
     }
 
-    // الانتظار ثانية واحدة ثم الانتقال لصفحة النتيجة
-    setTimeout(function() {
-        localStorage.setItem('finalScore', score); // حفظ النتيجة
-        window.location.href = "result.html"; // الانتقال لصفحة النتيجة
+    selectedForCurrent = []; 
+    const qData = quizQuestions[currentQuestionIndex];
+    
+    // تحديث الملاحظة ونص السؤال
+    document.getElementById('hintText').innerText = (qData.limit === 2) ? "ملاحظة: اختر إجابتين لهذا السؤال." : "ملاحظة : اختر إجابة واحدة فقط.";
+    document.getElementById('questionText').innerText = `سؤال ${currentQuestionIndex + 1}: ${qData.q}`;
+    
+    const container = document.getElementById('optionsContainer');
+    container.innerHTML = "";
+    
+    // إنشاء الأزرار
+    let buttons = [];
+    qData.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = "option";
+        btn.innerText = opt;
+        btn.onclick = () => handleSelection(btn, index); 
+        buttons.push(btn);
+    });
+
+    // خلط الأزرار عشوائياً
+    buttons.sort(() => Math.random() - 0.5);
+
+    // إضافتها للحاوية
+    buttons.forEach(btn => container.appendChild(btn));
+
+    // إخفاء الأختام وتصفير المؤقت
+    document.getElementById('correctStamp').style.display = "none";
+    document.getElementById('wrongStamp').style.display = "none";
+    resetTimer();
+}
+function handleSelection(element, optionIndex) {
+    const qData = quizQuestions[currentQuestionIndex];
+    const allOptions = document.querySelectorAll('.option');
+    
+    // 1. تعطيل الأزرار لمنع الضغط المتكرر
+    allOptions.forEach(btn => btn.disabled = true);
+    
+    // 2. إيقاف المؤقت
+    clearInterval(timerId);
+    
+    // 3. التحقق من صحة الإجابة المحددة (مقارنة النص لضمان الدقة مع الخلط العشوائي)
+    const isCorrect = qData.correct.some(idx => qData.options[idx] === element.innerText);
+
+    if(isCorrect) {
+        // --- حالة الإجابة الصحيحة ---
+        playSfx('correct');
+        score++;
+        document.getElementById('score').innerText = score; // تحديث النتيجة
+        
+        element.style.background = "rgba(39, 174, 96, 0.9)"; // أخضر
+        element.style.border = "2px solid #2ecc71";
+        document.getElementById('correctStamp').style.display = "block";
+    } else {
+        // --- حالة الإجابة الخاطئة ---
+        playSfx('wrong');
+        element.style.background = "rgba(192, 57, 43, 0.9)"; // أحمر
+        element.style.border = "2px solid #e74c3c";
+        document.getElementById('wrongStamp').style.display = "block";
+        
+        // هنا لم نضف أي كود لتلوين الأزرار الأخرى بالأخضر كما طلبتِ
+    }
+
+    // 4. الانتقال للسؤال التالي بعد ثانية ونصف
+    setTimeout(() => {
+        currentQuestionIndex++;
+        showQuestion();
     }, 1500);
 }
 
-    // كود التايمر البسيط
-    var timeLeft = 30;
-    var timerId = setInterval(function() {
+function resetTimer() {
+    clearInterval(timerId);
+    timeLeft = 20;
+    document.getElementById('timer').innerText = timeLeft;
+    
+    timerId = setInterval(() => {
         timeLeft--;
         document.getElementById('timer').innerText = timeLeft;
         if(timeLeft <= 0) {
             clearInterval(timerId);
-            alert("انتهى الوقت!");
+            validateFinal();
         }
     }, 1000);
-</script>
+}
 
+function finishQuiz() {
+    // 1. حفظ النتيجة في الذاكرة
+    localStorage.setItem('finalScore', score);
+
+    // 2. إخفاء الأسئلة وإظهار زر الانتقال
+    const container = document.querySelector('.quiz-card');
+    container.innerHTML = `
+        <h2 style="color: white; margin-bottom: 20px;">انتهت الأسئلة!</h2>
+        <p style="color: #00f2ff; font-size: 20px; margin-bottom: 30px;">اضغط على الزر أدناه لاستلام نتيجتك .</p>
+        <button class="option" style="background: #00f2ff; color: #0a192f; font-weight: bold; padding: 20px;" 
+                onclick="goToResult()">
+            عرض النتيجة النهائية 🏆
+        </button>
+    `;
+}
+
+// دالة الانتقال الفعلي
+function goToResult() {
+    playSfx('click'); // تشغيل صوت للنقرة لضمان فتح قنوات الصوت
+    window.location.href = "result.html";
+}
+</script>
 </body>
 </html>
