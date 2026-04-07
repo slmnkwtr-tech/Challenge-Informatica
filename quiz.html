@@ -90,10 +90,10 @@
 </div>
 
 <script>
-  // الربط بالملفات الموجودة في المجلد الرئيسي مباشرة
+  
 const sounds = {
-    correct: new Audio('correct.mp3'), // تأكدي أن الاسم يطابق ملفك (مثلاً right.mp3 أو win.mp3)
-    wrong: new Audio('wrong.mp3'),   // تأكدي أن الاسم يطابق ملفك بالضبط
+    correct: new Audio('correct.mp3'), 
+    wrong: new Audio('wrong.mp3'), 
     click: new Audio('click.mp3')
 };
 
@@ -299,12 +299,12 @@ const allQuestions = {
 var score = 0;
 var currentQuestionIndex = 0;
 var quizQuestions = [];
-var selectedForCurrent = []; // تم تعريفها هنا لتعمل في كل الدوال
+var selectedForCurrent = []; 
 var timeLeft = 20;
 var timerId;
 // في ملف الأسئلة (quiz.html)
 window.onload = function() {
-    prepareQuiz(); // هذا السطر هو المحرك الذي يبدأ كل شيء
+    prepareQuiz(); 
 };
  function prepareQuiz() {
     // 1. جلب البيانات من الذاكرة
@@ -400,7 +400,7 @@ function handleSelection(element, optionIndex) {
     allOptions.forEach(btn => btn.disabled = true);
     clearInterval(timerId);
     
-    // التحقق من الإجابة بمقارنة النص لضمان الدقة مع الخلط
+    // التحقق من الإجابة بمقارنة النص
     const isCorrect = qData.correct.some(idx => qData.options[idx] === element.innerText);
 
     if(isCorrect) {
@@ -431,9 +431,25 @@ function resetTimer() {
         document.getElementById('timer').innerText = timeLeft;
         if(timeLeft <= 0) {
             clearInterval(timerId);
-            validateFinal();
+           
+            handleTimeOut(); 
         }
     }, 1000);
+}
+
+
+function handleTimeOut() {
+    playSfx('wrong');
+    document.getElementById('wrongStamp').style.display = "block";
+    
+    // تعطيل الأزرار لكي لا يضغط المستخدم بعد انتهاء الوقت
+    const allOptions = document.querySelectorAll('.option');
+    allOptions.forEach(btn => btn.disabled = true);
+
+    setTimeout(() => {
+        currentQuestionIndex++;
+        showQuestion();
+    }, 1500);
 }
 
 function finishQuiz() {
@@ -454,7 +470,7 @@ function finishQuiz() {
 
 // دالة الانتقال الفعلي
 function goToResult() {
-    playSfx('click'); // تشغيل صوت للنقرة لضمان فتح قنوات الصوت
+    playSfx('click');
     window.location.href = "result.html";
 }
 </script>
