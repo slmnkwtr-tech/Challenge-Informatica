@@ -154,6 +154,8 @@ window.onload = function() {
 
 function restartGame() {
     new Audio('click.mp3').play();
+localStorage.clear();  
+sessionStorage.clear(); 
     setTimeout(() => { location.href = 'index.html'; }, 300);
 }
 </script>
