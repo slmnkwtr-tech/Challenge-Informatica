@@ -331,9 +331,7 @@ window.onload = function() {
     // 5. إضافة سؤال التحدي (البونص) ليصبح المجموع 10
     addBonusQuestion(userLevel);
 
-    // 6. خلط الأسئلة عشوائياً
-    quizQuestions.sort(() => Math.random() - 0.5);
-
+   
     // 7. تصفير العداد والنتيجة والبدء
     if (quizQuestions.length > 0) {
         currentQuestionIndex = 0;
@@ -400,19 +398,27 @@ function handleSelection(element, optionIndex) {
     allOptions.forEach(btn => btn.disabled = true);
     clearInterval(timerId);
     
-    // التحقق من الإجابة بمقارنة النص
-    const isCorrect = qData.correct.some(idx => qData.options[idx] === element.innerText);
+    // التعديل هنا: نتحقق إذا كان نص الزر المضغوط موجوداً ضمن الخيارات الصحيحة الأصلية
+    const correctOptionsTexts = qData.correct.map(idx => qData.options[idx]);
+    const isCorrect = correctOptionsTexts.includes(element.innerText);
 
     if(isCorrect) {
         playSfx('correct');
         score++;
         document.getElementById('score').innerText = score;
-        element.style.background = "rgba(39, 174, 96, 0.9)"; // أخضر
+        element.style.background = "rgba(39, 174, 96, 0.9)"; 
         document.getElementById('correctStamp').style.display = "block";
     } else {
         playSfx('wrong');
-        element.style.background = "rgba(192, 57, 43, 0.9)"; // أحمر
+        element.style.background = "rgba(192, 57, 43, 0.9)"; 
         document.getElementById('wrongStamp').style.display = "block";
+        
+        // إظهار الإجابة الصحيحة للمستخدم (اختياري)
+        allOptions.forEach(btn => {
+            if (correctOptionsTexts.includes(btn.innerText)) {
+                btn.style.border = "2px solid #27ae60";
+            }
+        });
     }
 
     setTimeout(() => {
@@ -420,7 +426,6 @@ function handleSelection(element, optionIndex) {
         showQuestion();
     }, 1500);
 }
-
 function resetTimer() {
     clearInterval(timerId);
     timeLeft = 20;
